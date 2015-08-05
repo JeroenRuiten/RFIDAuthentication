@@ -16,12 +16,13 @@ void rfid_init()
 // short ask_for_pin(); <--- TODO
 
 void rfid_new_card(char card[6])
-{
+{ 
 
   char master_card[6];
   for (int i = 0; i < 6; i++)
     master_card[i] = EEPROM[i + 1];
   if (memcmp(card, master_card, 6) == 0) {
+    Serial.println("Detected master card");
     // parse master card
   } else {
     Serial.println("New card!");
@@ -41,7 +42,7 @@ void rfid_drop_card()
 void rfid_ping_card()
 {
   lastTimeSeen = millis();
-//  Serial.println("Ping card");
+  Serial.println("Ping card");
 }
 
 void rfid()
@@ -55,29 +56,9 @@ void rfid()
 
   while (rfidSerial.read() != 0x02) // STX
     return;
-  char hex_buffer[13];
-  rfidSerial.readBytes(hex_buffer, 12);
-  hex_buffer[12] = 0;
-  char result[6] = {0};
-  for (int i = 0; i < 12; i++) {
-    int res;
-    if (hex_buffer[i] >= 'A' && hex_buffer[i] <= 'F')
-      res = hex_buffer[i] - 'A' + 0xA;
-    else
-      res = hex_buffer[i] - '0';
-    result[i / 2] = result[i / 2] << 4 | res;
-  }
-  char end_bytes[3];
 
-  char checksum = 0;
-  for (int i = 0; i < 5; i++) {
-    checksum ^= result[i];
-  }
-
-  if (result[5] != checksum) {
-    Serial.println("Invalid checksum");
-    return;
-  }
+  char result[6];
+  rfid_parse_card(result);
 
   if (!cardExists) {
     rfid_new_card(result);
@@ -88,6 +69,33 @@ void rfid()
       rfid_drop_card();
       rfid_new_card(result);
     }
+  }
+}
+
+void rfid_parse_card(char buffer[6])
+{
+  char hex_buffer[13];
+  rfidSerial.readBytes(hex_buffer, 12);
+  hex_buffer[12] = 0;
+  memset(buffer, 0, 6);
+  for (int i = 0; i < 12; i++) {
+    int res;
+    if (hex_buffer[i] >= 'A' && hex_buffer[i] <= 'F')
+      res = hex_buffer[i] - 'A' + 0xA;
+    else
+      res = hex_buffer[i] - '0';
+    buffer[i / 2] = buffer[i / 2] << 4 | res;
+  }
+  char end_bytes[3];
+
+  char checksum = 0;
+  for (int i = 0; i < 5; i++) {
+    checksum ^= buffer[i];
+  }
+
+  if (buffer[5] != checksum) {
+    Serial.println("Invalid checksum");
+    return;
   }
 }
 

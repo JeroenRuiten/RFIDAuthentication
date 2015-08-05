@@ -1,0 +1,20 @@
+ID 1: Card info
+	Request:
+		Card (6 bytes)
+	Response:
+		Challenge (16 bytes)
+		Flags:
+			Skip pincode (1 bit)
+
+ID 2: Verify card
+	Request:
+		Card (6 bytes)
+		Challenge response (32 bytes)
+			Response is SHA-256(Server Challenge (XOR) Client Challenge (XOR) Secret (XOR) (pincode, padded with 0))
+
+	Response:
+		Verification (32 bytes)
+			SHA-256(Server Challenge (XOR) Client Challenge (XOR) Secret)
+		Flags:
+			Challenge OK (1 bit)
+

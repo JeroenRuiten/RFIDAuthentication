@@ -8,12 +8,28 @@ struct command {
   byte checksum; // adding all bytes must be 0
 };
 
-struct command_get_card_info {
+enum {
+  CMD_CARD_INFO = 1,
+  CMD_VERIFY_CARD = 2,
+};
+
+struct command_card_info_req {
   char card[6];
 };
 
-struct command_card_info {
-  byte is_valid;
+struct command_card_info_res {
+  char challenge[16];
+  char skip_pincode;
+};
+
+struct command_verify_card_req {
+  char card[6];
+  char challenge_response[32];
+};
+
+struct command_verify_card_res {
+  char verification[32];
+  char challenge_ok;
 };
 
 void comm_init();
