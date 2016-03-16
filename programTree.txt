@@ -1,0 +1,24 @@
+-Arduino: Keypad, Current check, display
+  -sent keypress to ESP
+  -readout current
+    -if shutdown command has been recieved
+      -current is low, shutdown
+        -sent shutdown complete to ESP
+      -current is high, wait, check again
+  -print to display
+-ESP8266: wifi, rfid, auth
+  -sent text to arduino for display
+  -sence rfid card
+    -read rfid card
+    -connect to server for auth with rfid card
+  -*remove RFID card*
+    -sent event begin to server
+    -sent shutdown to arduino
+    -if shutdown complete has been recieved
+      -sent event complete to server
+  -every minute
+    -sent heartbeat to server
+-Server: accounts, auth processing
+  -process requstest
+  -check system alive, heartbeat
+    -reply to heartbeat
