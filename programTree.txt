@@ -1,3 +1,5 @@
+*event*
+
 -Arduino: Keypad, Current check, display
   -sent keypress to ESP
   -readout current
@@ -6,11 +8,24 @@
         -sent shutdown complete to ESP
       -current is high, wait, check again
   -print to display
+  -*relay ON*
+  -*relay OFF*
+    -if current low
+      -switch relay off
+      -sent relay off complete
+    -if current high
+      -sent shutdown pending (1 time)
 -ESP8266: wifi, rfid, auth
   -sent text to arduino for display
   -sence rfid card
     -read rfid card
     -connect to server for auth with rfid card
+  -*RFID auth complete*
+    -if succesful
+      -sent text to arduino display
+      -sent relay ON to arduino
+    -if UNsuccesful
+      -sent text to arduino display
   -*remove RFID card*
     -sent event begin to server
     -sent shutdown to arduino
